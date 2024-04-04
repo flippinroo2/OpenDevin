@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from .base import Observation
 
+
 @dataclass
 class CmdOutputObservation(Observation):
     """
@@ -11,7 +12,7 @@ class CmdOutputObservation(Observation):
     command_id: int
     command: str
     exit_code: int = 0
-    observation : str = "run"
+    observation: str = "run"
 
     @property
     def error(self) -> bool:
@@ -19,6 +20,6 @@ class CmdOutputObservation(Observation):
 
     @property
     def message(self) -> str:
-        return f'Command `{self.command}` executed with exit code {self.exit_code}.'
-
-
+        if self.exit_code == 100:
+            print("self.exit_code == 100")
+        return f"Command `{self.command}` executed with exit code {self.exit_code}."

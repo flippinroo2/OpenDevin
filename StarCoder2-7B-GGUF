@@ -1,4 +1,4 @@
-FROM ../../models/.lm_studio/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/mistral-7b-instruct-v0.2.Q8_0.gguf
+FROM ../../models/.lm_studio/second-state/StarCoder2-7B-GGUF/starcoder2-7b-Q8_0.gguf
 
 # Set the temperature to 1 [higher is more creative, lower is more coherent]
 PARAMETER temperature 1

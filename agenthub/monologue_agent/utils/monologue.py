@@ -3,6 +3,7 @@ import traceback
 import agenthub.monologue_agent.utils.json as json
 import agenthub.monologue_agent.utils.prompts as prompts
 
+
 class Monologue:
     def __init__(self):
         self.thoughts = []
@@ -10,6 +11,7 @@ class Monologue:
     def add_event(self, t: dict):
         if not isinstance(t, dict):
             raise ValueError("Event must be a dictionary")
+        print(f"Thought: {t.get("message", "N/A")}")
         self.thoughts.append(t)
 
     def get_thoughts(self):
@@ -27,14 +29,15 @@ class Monologue:
     def condense(self, llm):
         try:
             prompt = prompts.get_summarize_monologue_prompt(self.thoughts)
-            messages = [{"content": prompt,"role": "user"}]
+            messages = [{"content": prompt, "role": "user"}]
             resp = llm.completion(messages=messages)
-            summary_resp = resp['choices'][0]['message']['content']
+            summary_resp = resp["choices"][0]["message"]["content"]
             self.thoughts = prompts.parse_summary_response(strip_markdown(summary_resp))
         except Exception as e:
             traceback.print_exc()
             raise RuntimeError(f"Error condensing thoughts: {e}")
 
+
 def strip_markdown(markdown_json):
     # remove markdown code block
-    return markdown_json.replace('```json\n', '').replace('```', '').strip()
+    return markdown_json.replace("```json\n", "").replace("```", "").strip()

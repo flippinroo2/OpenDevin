@@ -1,35 +1,47 @@
-
 import asyncio
 import inspect
 import traceback
-from typing import List, Callable, Literal, Mapping, Awaitable, Any, cast
+from typing import Any, Awaitable, Callable, List, Literal, Mapping, cast
 
-from termcolor import colored
-
-from opendevin.plan import Plan
-from opendevin.state import State
-from opendevin.agent import Agent
+from opendevin import config
 from opendevin.action import (
     Action,
-    NullAction,
-    AgentFinishAction,
     AddTaskAction,
-    ModifyTaskAction
+    AgentFinishAction,
+    ModifyTaskAction,
+    NullAction,
 )
-from opendevin.observation import (
-    Observation,
-    AgentErrorObservation,
-    NullObservation
-)
-from opendevin import config
+from opendevin.agent import Agent
+from opendevin.observation import AgentErrorObservation, NullObservation, Observation
+from opendevin.plan import Plan
+from opendevin.state import State
+from termcolor import colored
 
 from .command_manager import CommandManager
 
+ColorType = Literal[
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "light_grey",
+    "dark_grey",
+    "light_red",
+    "light_green",
+    "light_yellow",
+    "light_blue",
+    "light_magenta",
+    "light_cyan",
+    "white",
+]
 
-ColorType = Literal['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'light_grey', 'dark_grey', 'light_red', 'light_green', 'light_yellow', 'light_blue', 'light_magenta', 'light_cyan', 'white']
-
-DISABLE_COLOR_PRINTING = config.get_or_default("DISABLE_COLOR", "false").lower() == "true"
+DISABLE_COLOR_PRINTING = (
+    config.get_or_default("DISABLE_COLOR", "false").lower() == "true"
+)
 MAX_ITERATIONS = config.get("MAX_ITERATIONS")
+
 
 def print_with_color(text: Any, print_type: str = "INFO"):
     TYPE_TO_COLOR: Mapping[str, ColorType] = {
@@ -50,6 +62,7 @@ def print_with_color(text: Any, print_type: str = "INFO"):
             flush=True,
         )
 
+
 class AgentController:
     def __init__(
         self,
@@ -62,7 +75,7 @@ class AgentController:
         self.agent = agent
         self.max_iterations = max_iterations
         self.workdir = workdir
-        self.command_manager = CommandManager(workdir,container_image)
+        self.command_manager = CommandManager(workdir, container_image)
         self.callbacks = callbacks
 
     def update_state_for_step(self, i):
@@ -81,6 +94,7 @@ class AgentController:
         self.state.updated_info.append((action, observation))
 
     async def start_loop(self, task: str):
+        print("\nagent_controller.py - start_loop()")
         finished = False
         plan = Plan(task)
         self.state = State(plan)
@@ -96,7 +110,7 @@ class AgentController:
             print("Exited before finishing", flush=True)
 
     async def step(self, i: int):
-        print("\n\n==============", flush=True)
+        print("\n\n====== agent_controller.py ========", flush=True)
         print("STEP", i, flush=True)
         print_with_color(self.state.plan.main_goal, "PLAN")
 
@@ -120,7 +134,7 @@ class AgentController:
             traceback.print_exc()
             # TODO Change to more robust error handling
             if "The api_key client option must be set" in observation.content:
-                raise 
+                raise
         self.update_state_after_step()
 
         await self._run_callbacks(action)
@@ -172,4 +186,6 @@ class AgentController:
             except Exception as e:
                 print("Callback error:" + str(idx), e, flush=True)
                 pass
-        await asyncio.sleep(0.001) # Give back control for a tick, so we can await in callbacks
+        await asyncio.sleep(
+            0.001
+        )  # Give back control for a tick, so we can await in callbacks
