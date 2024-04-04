@@ -8,19 +8,21 @@ import {
 } from "./store";
 import { io } from "socket.io-client";
 
+const PORT = 3000;
+// const PORT = 1337;
 
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     // Client-side code
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://127.0.0.1:1337';
+      return `http://127.0.0.1:${PORT}`;
     } else {
-      return `http://${host}:1337`;
+      return `http://${host}:${PORT}`;
     }
   } else {
     // Server-side code (Node.js)
-    return 'http://127.0.0.1:1337';
+    return `http://127.0.0.1:${PORT}`;
   }
 };
 
@@ -29,7 +31,8 @@ export const socket = io(API_BASE_URL);
 
 
 export async function fetchInitialData() {
-  const response = await fetch(`${API_BASE_URL}/api/data`);
+  const response = await fetch(`${API_BASE_URL}/default-model`);
+  // const response = await fetch(`${API_BASE_URL}/api/data`);
   const data = await response.json();
   projectList.set(data.projects);
   modelList.set(data.models);

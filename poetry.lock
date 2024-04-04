@@ -123,13 +123,13 @@ files = [
 
 [[package]]
 name = "anthropic"
-version = "0.21.3"
+version = "0.22.0"
 description = "The official Python library for the anthropic API"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "anthropic-0.21.3-py3-none-any.whl", hash = "sha256:5869115453b543a46ded6515c9f29b8d610b6e94bbba3230ad80ac947d2b0862"},
-    {file = "anthropic-0.21.3.tar.gz", hash = "sha256:02f1ab5694c497e2b2d42d30d51a4f2edcaca92d2ec86bb64fe78a9c7434a869"},
+    {file = "anthropic-0.22.0-py3-none-any.whl", hash = "sha256:1b866e813c9c20c5db72c3e857a69308ef7e155777a9e68b538543753cc07f14"},
+    {file = "anthropic-0.22.0.tar.gz", hash = "sha256:cf132742dc6b2e8a750a9907ec090731e0c7d05b133ef29e15c41593dc6b6605"},
 ]
 
 [package.dependencies]
@@ -2310,7 +2310,7 @@ adal = ["adal (>=1.0.2)"]
 [[package]]
 name = "libraries"
 version = "0.0.1"
-description = ""
+description = "Flippinroo2 - Libraries"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = []
@@ -3804,13 +3804,13 @@ sympy = "*"
 
 [[package]]
 name = "openai"
-version = "1.16.1"
+version = "1.16.2"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.16.1-py3-none-any.whl", hash = "sha256:77ef3db6110071f7154859e234250fb945a36554207a30a4491092eadb73fcb5"},
-    {file = "openai-1.16.1.tar.gz", hash = "sha256:58922c785d167458b46e3c76e7b1bc2306f313ee9b71791e84cbf590abe160f2"},
+    {file = "openai-1.16.2-py3-none-any.whl", hash = "sha256:46a435380921e42dae218d04d6dd0e89a30d7f3b9d8a778d5887f78003cf9354"},
+    {file = "openai-1.16.2.tar.gz", hash = "sha256:c93d5efe5b73b6cb72c4cd31823852d2e7c84a138c0af3cbe4a8eb32b1164ab2"},
 ]
 
 [package.dependencies]
@@ -7208,4 +7208,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<=3.12.2"
-content-hash = "3ced9245e5fc2fce9d34dc3d9576ebdc9f05e43467fc217c0ca5228ba691e4a5"
+content-hash = "9054aa7a0378b567bccc568bfd4b108600c2cae81bbf7b2a0f5e0a72817eb887"
