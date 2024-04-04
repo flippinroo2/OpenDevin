@@ -200,3 +200,6 @@ logs
 
 # configuration
 config.toml
+
+# debug
+debug_directory

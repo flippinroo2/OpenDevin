@@ -1,0 +1,85 @@
+[tool.poetry]
+name = "opendevin"
+version = "0.0.1"
+description = "Flippinroo2 - Open Devin"
+authors = ["Flippinroo2 <flippinroo2@gmx.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<=3.12.2"
+libraries = { path = "../../libraries", develop = true }
+toml = "*"
+torch = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.devika]
+optional = true
+
+[tool.poetry.group.devika.dependencies]
+anthropic = "*"
+colorama = "*"
+duckduckgo-search = "*"
+eventlet = "*"
+flask = "*"
+flask-cors = "*"
+Flask-SocketIO = "*"
+fastlogging = "*"
+gevent = "*"
+gevent-websocket = "*"
+GitPython = "*"
+google-generativeai = "*"
+groq = "*"
+Jinja2 = "*"
+mistletoe = "*"
+markdownify = "*"
+mistralai = "*"
+keybert = "*"
+Markdown = "*"
+netlify-py = "*"
+orjson = "*"
+ollama = "*"
+openai = "*"
+pdfminer-six = "*"
+playwright = "*"
+pytest-playwright = "*"
+requests = "*"
+sqlmodel = "*"
+tiktoken = "*"
+xhtml2pdf = "*"
+urllib3 = "1.26.15"
+
+[tool.poetry.group.open_devin]
+optional = false
+
+[tool.poetry.group.open_devin.dependencies]
+datasets = "*"
+docker = "*"
+chromadb = "*"
+cython="*"
+fastapi = "*"
+google-generativeai = "*"
+json_repair = "*"
+llama-index = { path = "../../libraries/libraries/llama_index", develop = true } # Needs to be on tag 0.9.48 or 0.10.26
+# llama-index = "*"
+llama-index-embeddings-azure-openai = "*"
+llama-index-embeddings-huggingface = "*"
+llama-index-embeddings-ollama = "*"
+llama-index-vector-stores-chroma = "*"
+litellm = { path = "../../libraries/libraries/litellm", develop = true } # Needs to be on tag 1.34.22
+mypy = "*"
+numpy="*"
+# opendevin = { path = "agents/OpenDevin", develop = true }
+pandas = "*"
+pipenv="*"
+playwright="*"
+ruff = "*"
+seaborn = "*"
+scipy = "*"
+termcolor = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# [tool.poetry.scripts]
+# interpreter = "interpreter.interpreter:interpreter.start_terminal_interface"
+# i = "interpreter.interpreter:interpreter.start_terminal_interface"

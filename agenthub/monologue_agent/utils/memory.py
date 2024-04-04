@@ -1,10 +1,10 @@
 import chromadb
-from llama_index.core import Document
+from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.core import VectorStoreIndex
+from llama_index.core.schema import Document
 from llama_index.vector_stores.chroma import ChromaVectorStore
-
 from opendevin import config
+
 from . import json
 
 embedding_strategy = config.get("LLM_EMBEDDING_MODEL")
@@ -13,6 +13,7 @@ embedding_strategy = config.get("LLM_EMBEDDING_MODEL")
 # There's probably a more programmatic way to do this.
 if embedding_strategy == "llama2":
     from llama_index.embeddings.ollama import OllamaEmbedding
+
     embed_model = OllamaEmbedding(
         model_name="llama2",
         base_url=config.get_or_error("LLM_BASE_URL"),
@@ -20,11 +21,15 @@ if embedding_strategy == "llama2":
     )
 elif embedding_strategy == "openai":
     from llama_index.embeddings.openai import OpenAIEmbedding
+
     embed_model = OpenAIEmbedding(
         base_url=config.get_or_error("LLM_BASE_URL"),
     )
 elif embedding_strategy == "azureopenai":
-    from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding  # Need to instruct to set these env variables in documentation
+    from llama_index.embeddings.azure_openai import (
+        AzureOpenAIEmbedding,
+    )
+
     embed_model = AzureOpenAIEmbedding(
         model="text-embedding-ada-002",
         deployment_name=config.get_or_error("LLM_DEPLOYMENT_NAME"),
@@ -34,9 +39,8 @@ elif embedding_strategy == "azureopenai":
     )
 else:
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-    embed_model = HuggingFaceEmbedding(
-        model_name="BAAI/bge-small-en-v1.5"
-    )
+
+    embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 
 class LongTermMemory:
@@ -44,7 +48,9 @@ class LongTermMemory:
         db = chromadb.Client()
         self.collection = db.get_or_create_collection(name="memories")
         vector_store = ChromaVectorStore(chroma_collection=self.collection)
-        self.index = VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
+        self.index = VectorStoreIndex.from_vector_store(
+            vector_store, embed_model=embed_model
+        )
         self.thought_idx = 0
 
     def add_event(self, event):
@@ -75,5 +81,3 @@ class LongTermMemory:
         )
         results = retriever.retrieve(query)
         return [r.get_text() for r in results]
-
-
