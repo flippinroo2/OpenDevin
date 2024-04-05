@@ -90,6 +90,7 @@ playwright="*"
 ruff = "*"
 seaborn = "*"
 scipy = "*"
+sqlmodel = "*"
 termcolor = "*"
 
 [build-system]
