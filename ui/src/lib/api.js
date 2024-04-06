@@ -36,7 +36,7 @@ export const socket = {}
 
 
 export async function fetchInitialData() {
-  const response = await fetch(`${API_BASE_URL}/default-model`);
+  const response = await fetch(`${API_BASE_URL}/default-data`);
   // const response = await fetch(`${API_BASE_URL}/api/data`);
   const data = await response.json();
   projectList.set(data.projects);

@@ -63,6 +63,7 @@
   const dropdowns = [
     { dropdown: "project-dropdown", button: "project-button" },
     { dropdown: "model-dropdown", button: "model-button" },
+    { dropdown: "agent-dropdown", button: "agent-button" },
     { dropdown: "search-engine-dropdown", button: "search-engine-button" },
   ];
   function closeDropdowns(event) {

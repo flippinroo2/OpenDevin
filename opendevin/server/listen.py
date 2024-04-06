@@ -1,4 +1,4 @@
-from typing import Any
+import json
 
 import agenthub  # noqa F401 (we import this to get the agents registered)
 import litellm
@@ -48,8 +48,24 @@ async def get_litellm_agents():
     return Agent.listAgents()
 
 
-@app.get("/default-model")
-def read_default_model() -> str | Any:
-    default_model: str | Any = get_or_error("LLM_MODEL")
-    print(f"\n/default-model -> {default_model}\n")
-    return default_model
+@app.get("/default-data")
+def get_default_data() -> str:
+    project_list = []
+    model_list = [get_or_error("LLM_MODEL")]
+    agent_list = []
+    search_engine_list = []
+    # return_value = {
+    #     "project_list": project_list,
+    #     "model_list": model_list,
+    #     "agent_list": agent_list,
+    #     "search_engine_list": search_engine_list,
+    # }
+    return_value: str = json.dumps(
+        {
+            "project_list": project_list,
+            "model_list": model_list,
+            "agent_list": agent_list,
+            "search_engine_list": search_engine_list,
+        }
+    )
+    return return_value

@@ -12,7 +12,7 @@
     checkInternetStatus,
     // socket
   } from "$lib/api";
-  import { messages,tokenUsage, agentState } from "$lib/store";
+  import { isComplete, isInitialized, messages,tokenUsage, agentState } from "$lib/store";
 
   onMount(() => {
     // localStorage.clear();
@@ -24,29 +24,6 @@
       await checkInternetStatus();
     };
     load();
-
-    
-    const WS_URL = `ws://localhost:3000/ws`;
-    const socket = new WebSocket(WS_URL);
-
-    socket.onopen = () => {
-      // socket.send('message', {action: 'initialize'});
-      // socket.send({action:"initialize",args:{}});
-      socket.send(JSON.stringify({action:"initialize",args:{}}));
-      console.debug("WebSocket.onopen() - Sent initalize action to server");
-      // socket.send(eventString);
-    };
-
-
-    socket.onmessage = (event) => {
-      const socketMessage = JSON.parse(event.data);
-      console.info("sockert -> message");
-    };
-    socket.addEventListener("message", (event) => {
-      const socketMessage = JSON.parse(event.data);
-      console.info("sockert -> message");
-    });
-
 
     // socket.emit('socket_connect', {data: 'frontend connected!'});
     // socket.on('socket_response', function(msg) {console.log(msg)});
@@ -69,6 +46,29 @@
     //   tokenUsage.set(tokens["token_usage"]);
     // });
 
+    const WS_URL = `ws://localhost:3000/ws`;
+    const socket = new WebSocket(WS_URL);
+
+    socket.onopen = () => {
+      // socket.send('message', {action: 'initialize'});
+      // socket.send({action:"initialize",args:{}});
+      socket.send(JSON.stringify({action:"initialize",args:{}}));
+      console.debug("WebSocket.onopen() - Sent initalize action to server");
+      // socket.send(eventString);
+    };
+
+    socket.onmessage = (event) => {
+      const socketMessage = JSON.parse(event.data);
+      console.info(socketMessage);
+      const { action , message } = socketMessage;
+      switch(action){
+        case 'initialize':
+          console.info("WebSocket.onmessage() - initialize");
+          break;
+        default:
+          console.info("WebSocket.onmessage() - default");
+      }
+    };
 });
 </script>
 
