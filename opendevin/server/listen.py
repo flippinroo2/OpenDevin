@@ -1,3 +1,5 @@
+from typing import Any
+
 import agenthub  # noqa F401 (we import this to get the agents registered)
 import litellm
 from fastapi import FastAPI, WebSocket
@@ -6,9 +8,9 @@ from opendevin.agent import Agent
 from opendevin.server.session import Session
 from src.config import Config, get_or_error
 
-app = FastAPI()
-
 config = Config()
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+litellm.set_verbose = True  # Setting verbose mode for Lite LLM
 
 
 # This endpoint receives events from the client (i.e. the browser)
@@ -45,5 +49,7 @@ async def get_litellm_agents():
 
 
 @app.get("/default-model")
-def read_default_model():
-    return get_or_error("LLM_MODEL")
+def read_default_model() -> str | Any:
+    default_model: str | Any = get_or_error("LLM_MODEL")
+    print(f"\n/default-model -> {default_model}\n")
+    return default_model

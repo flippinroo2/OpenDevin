@@ -3,7 +3,7 @@ import inspect
 import traceback
 from typing import Any, Awaitable, Callable, List, Literal, Mapping, cast
 
-from opendevin import config
+from src.config import Config, get_or_default
 from opendevin.action import (
     Action,
     AddTaskAction,
@@ -18,6 +18,8 @@ from opendevin.state import State
 from termcolor import colored
 
 from .command_manager import CommandManager
+
+config = Config()
 
 ColorType = Literal[
     "red",
@@ -37,10 +39,8 @@ ColorType = Literal[
     "white",
 ]
 
-DISABLE_COLOR_PRINTING = (
-    config.get_or_default("DISABLE_COLOR", "false").lower() == "true"
-)
-MAX_ITERATIONS = config.get("MAX_ITERATIONS")
+DISABLE_COLOR_PRINTING = get_or_default("DISABLE_COLOR", "false").lower() == "true"
+MAX_ITERATIONS = config.config.get("MAX_ITERATIONS")
 
 
 def print_with_color(text: Any, print_type: str = "INFO"):
@@ -72,6 +72,7 @@ class AgentController:
         container_image: str | None = None,
         callbacks: List[Callable] = [],
     ):
+        print("\ncontroller/agent_controller.py -> AgentController.__init__()")
         self.agent = agent
         self.max_iterations = max_iterations
         self.workdir = workdir

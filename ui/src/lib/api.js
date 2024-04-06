@@ -6,7 +6,7 @@ import {
   messages,
   searchEngineList,
 } from "./store";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
 const PORT = 3000;
 // const PORT = 1337;
@@ -27,7 +27,12 @@ const getApiBaseUrl = () => {
 };
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || getApiBaseUrl();
-export const socket = io(API_BASE_URL);
+// export const socket = io(API_BASE_URL);
+
+
+const WS_URL = `ws://localhost:3000/ws`;
+// export const socket = new WebSocket(WS_URL);
+export const socket = {}
 
 
 export async function fetchInitialData() {

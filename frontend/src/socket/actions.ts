@@ -22,6 +22,7 @@ const messageActions = {
   write: (message: ActionMessage) => {
     store.dispatch(setCode(message.args.content));
   },
+  // "think" comes from an Observation
   think: (message: ActionMessage) => {
     store.dispatch(appendAssistantMessage(message.args.thought));
   },

@@ -2,12 +2,12 @@
   import { agentState } from "$lib/store";
   import { API_BASE_URL, socket } from "$lib/api";
   
-  socket.on('screenshot', function(msg) {
-    console.log("screenshot: ", msg);
-    const data = msg['data'];
-    const img = document.querySelector('.browser-img');
-    img.src = `data:image/png;base64,${data}`;
-  });
+  // socket.on('screenshot', function(msg) {
+  //   console.log("screenshot: ", msg);
+  //   const data = msg['data'];
+  //   const img = document.querySelector('.browser-img');
+  //   img.src = `data:image/png;base64,${data}`;
+  // });
 
 </script>
 

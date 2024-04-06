@@ -1,4 +1,5 @@
 import atexit
+import concurrent.futures
 import os
 import select
 import sys
@@ -8,22 +9,24 @@ from collections import namedtuple
 from typing import Dict, List, Tuple
 
 import docker
-import concurrent.futures
+from src.config import Config, DEFAULT_CONFIG, get_or_default, get_or_none
 
-from opendevin import config
+config = Config()
 
 InputType = namedtuple("InputType", ["content"])
 OutputType = namedtuple("OutputType", ["content"])
 
-DIRECTORY_REWRITE = config.get("DIRECTORY_REWRITE")  # helpful for docker-in-docker scenarios
-CONTAINER_IMAGE = config.get("SANDBOX_CONTAINER_IMAGE")
+DIRECTORY_REWRITE = DEFAULT_CONFIG.get(
+    "DIRECTORY_REWRITE"
+)  # helpful for docker-in-docker scenarios
+CONTAINER_IMAGE = DEFAULT_CONFIG.get("SANDBOX_CONTAINER_IMAGE")
 
 # FIXME: On some containers, the devin user doesn't have enough permission, e.g. to install packages
 # How do we make this more flexible?
-RUN_AS_DEVIN = config.get("RUN_AS_DEVIN").lower() != "false"
+RUN_AS_DEVIN = DEFAULT_CONFIG.get("RUN_AS_DEVIN", "").lower() != "false"
 USER_ID = 1000
-if config.get_or_none("SANDBOX_USER_ID") is not None:
-    USER_ID = int(config.get_or_default("SANDBOX_USER_ID", ""))
+if get_or_none("SANDBOX_USER_ID") is not None:
+    USER_ID = int(get_or_default("SANDBOX_USER_ID", ""))
 elif hasattr(os, "getuid"):
     USER_ID = os.getuid()
 
@@ -150,20 +153,21 @@ class DockerInteractive:
     def execute(self, cmd: str) -> Tuple[int, str]:
         # TODO: each execute is not stateful! We need to keep track of the current working directory
         def run_command(container, command):
-            return container.exec_run(command,workdir="/workspace")
+            return container.exec_run(command, workdir="/workspace")
+
         # Use ThreadPoolExecutor to control command and set timeout
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(run_command, self.container, self.get_exec_cmd(cmd))
+            future = executor.submit(
+                run_command, self.container, self.get_exec_cmd(cmd)
+            )
             try:
                 exit_code, logs = future.result(timeout=self.timeout)
             except concurrent.futures.TimeoutError:
                 print("Command timed out, killing process...")
                 pid = self.get_pid(cmd)
                 if pid is not None:
-                    self.container.exec_run(
-                        f"kill -9 {pid}", workdir="/workspace"
-                    )
-                return -1, f"Command: \"{cmd}\" timed out"
+                    self.container.exec_run(f"kill -9 {pid}", workdir="/workspace")
+                return -1, f'Command: "{cmd}" timed out'
         return exit_code, logs.decode("utf-8")
 
     def execute_in_background(self, cmd: str) -> BackgroundCommand:
@@ -179,12 +183,12 @@ class DockerInteractive:
 
     def get_pid(self, cmd):
         exec_result = self.container.exec_run("ps aux")
-        processes = exec_result.output.decode('utf-8').splitlines()
+        processes = exec_result.output.decode("utf-8").splitlines()
         cmd = " ".join(self.get_exec_cmd(cmd))
 
         for process in processes:
             if cmd in process:
-                pid = process.split()[1] # second column is the pid
+                pid = process.split()[1]  # second column is the pid
                 return pid
         return None
 
@@ -193,9 +197,7 @@ class DockerInteractive:
             raise ValueError("Invalid background command id")
         bg_cmd = self.background_commands[id]
         if bg_cmd.pid is not None:
-            self.container.exec_run(
-                f"kill -9 {bg_cmd.pid}", workdir="/workspace"
-            )
+            self.container.exec_run(f"kill -9 {bg_cmd.pid}", workdir="/workspace")
         bg_cmd.result.output.close()
         self.background_commands.pop(id)
         return bg_cmd
@@ -205,12 +207,11 @@ class DockerInteractive:
         self.closed = True
 
     def stop_docker_container(self):
-
         # Initialize docker client. Throws an exception if Docker is not reachable.
         try:
             docker_client = docker.from_env()
         except docker.errors.DockerException as e:
-            print('Please check Docker is running using `docker ps`.')
+            print("Please check Docker is running using `docker ps`.")
             print(f"Error! {e}", flush=True)
             raise e
 
@@ -233,7 +234,7 @@ class DockerInteractive:
             self.stop_docker_container()
         except docker.errors.DockerException as e:
             print(f"Failed to stop container: {e}")
-            raise e 
+            raise e
 
         try:
             # Initialize docker client. Throws an exception if Docker is not reachable.

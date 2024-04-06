@@ -3,11 +3,13 @@ from llama_index.core.indices.vector_store import VectorStoreIndex
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.schema import Document
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from opendevin import config
+from src.config import Config, get_or_error
 
 from . import json
 
-embedding_strategy = config.get("LLM_EMBEDDING_MODEL")
+config = Config()
+
+embedding_strategy = config.config.get("LLM_EMBEDDING_MODEL")
 
 # TODO: More embeddings: https://docs.llamaindex.ai/en/stable/examples/embeddings/OpenAI/
 # There's probably a more programmatic way to do this.
@@ -16,14 +18,14 @@ if embedding_strategy == "llama2":
 
     embed_model = OllamaEmbedding(
         model_name="llama2",
-        base_url=config.get_or_error("LLM_BASE_URL"),
+        base_url=get_or_error("LLM_BASE_URL"),
         ollama_additional_kwargs={"mirostat": 0},
     )
 elif embedding_strategy == "openai":
     from llama_index.embeddings.openai import OpenAIEmbedding
 
     embed_model = OpenAIEmbedding(
-        base_url=config.get_or_error("LLM_BASE_URL"),
+        base_url=get_or_error("LLM_BASE_URL"),
     )
 elif embedding_strategy == "azureopenai":
     from llama_index.embeddings.azure_openai import (
@@ -32,10 +34,10 @@ elif embedding_strategy == "azureopenai":
 
     embed_model = AzureOpenAIEmbedding(
         model="text-embedding-ada-002",
-        deployment_name=config.get_or_error("LLM_DEPLOYMENT_NAME"),
-        api_key=config.get_or_error("LLM_API_KEY"),
-        azure_endpoint=config.get_or_error("LLM_BASE_URL"),
-        api_version=config.get_or_error("LLM_API_VERSION"),
+        deployment_name=get_or_error("LLM_DEPLOYMENT_NAME"),
+        api_key=get_or_error("LLM_API_KEY"),
+        azure_endpoint=get_or_error("LLM_BASE_URL"),
+        api_version=get_or_error("LLM_API_VERSION"),
     )
 else:
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -45,7 +47,7 @@ else:
 
 class LongTermMemory:
     def __init__(self):
-        print("\nmemory.py -> LongTermMemory.__init__()")
+        print("\nagents/monologue_agent/utils/memory.py -> LongTermMemory.__init__()")
         db = chromadb.Client()
         self.collection = db.get_or_create_collection(name="memories")
         vector_store = ChromaVectorStore(chroma_collection=self.collection)

@@ -1,26 +1,27 @@
 import asyncio
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import WebSocketDisconnect
-
-from opendevin import config
 from opendevin.action import (
     Action,
     NullAction,
 )
-from opendevin.observation import NullObservation
 from opendevin.agent import Agent
 from opendevin.controller import AgentController
 from opendevin.llm.llm import LLM
-from opendevin.observation import Observation, UserMessageObservation
+from opendevin.observation import NullObservation, Observation, UserMessageObservation
+from src.config import Config, DEFAULT_CONFIG
 
-DEFAULT_API_KEY = config.get("LLM_API_KEY")
-DEFAULT_BASE_URL = config.get("LLM_BASE_URL")
-DEFAULT_WORKSPACE_DIR = config.get("WORKSPACE_DIR")
-LLM_MODEL = config.get("LLM_MODEL")
-CONTAINER_IMAGE = config.get("SANDBOX_CONTAINER_IMAGE")
-MAX_ITERATIONS = config.get("MAX_ITERATIONS")
+config = Config()
+
+DEFAULT_API_KEY = DEFAULT_CONFIG.get("LLM_API_KEY")
+DEFAULT_BASE_URL = DEFAULT_CONFIG.get("LLM_BASE_URL")
+DEFAULT_WORKSPACE_DIR = DEFAULT_CONFIG.get("WORKSPACE_DIR")
+LLM_MODEL = DEFAULT_CONFIG.get("LLM_MODEL")
+CONTAINER_IMAGE = DEFAULT_CONFIG.get("SANDBOX_CONTAINER_IMAGE")
+MAX_ITERATIONS = DEFAULT_CONFIG.get("MAX_ITERATIONS")
+
 
 class Session:
     """Represents a session with an agent.
@@ -31,6 +32,7 @@ class Session:
         agent: The Agent instance representing the agent.
         agent_task: The task representing the agent's execution.
     """
+
     def __init__(self, websocket):
         """Initializes a new instance of the Session class.
 
@@ -56,6 +58,8 @@ class Session:
         Args:
             message: The message to send.
         """
+        # Server sends data in the format of: {"message":""}
+        print(f"\nserver/session.py - Sent message: {message} to client via Websockets")
         await self.send({"message": message})
 
     async def send(self, data):
@@ -67,6 +71,8 @@ class Session:
         if self.websocket is None:
             return
         try:
+            # Server sends data in the format of: {"action":"initialize","message": ""}
+            print("\nserver/session.py - Sent data to client via Websockets", data)
             await self.websocket.send_json(data)
         except Exception as e:
             print("Error sending data to client", e)
@@ -76,7 +82,10 @@ class Session:
         try:
             while True:
                 try:
-                    data = await self.websocket.receive_json()
+                    # Client sends data in the format of: {"action":"initialize","args":{}}
+                    data = (
+                        await self.websocket.receive_json()
+                    )  # Websocket = localhost:63304
                 except ValueError:
                     await self.send_error("Invalid JSON")
                     continue
@@ -91,11 +100,17 @@ class Session:
                     await self.start_task(data)
                 else:
                     if self.controller is None:
-                        await self.send_error("No agent started. Please wait a second...")
+                        await self.send_error(
+                            "No agent started. Please wait a second..."
+                        )
                     elif action == "chat":
-                        self.controller.add_history(NullAction(), UserMessageObservation(data["message"]))
+                        self.controller.add_history(
+                            NullAction(), UserMessageObservation(data["message"])
+                        )
                     else:
-                        await self.send_error("I didn't recognize this action:" + action)
+                        await self.send_error(
+                            "I didn't recognize this action:" + action
+                        )
 
         except WebSocketDisconnect as e:
             print("Client websocket disconnected", e)
@@ -136,10 +151,18 @@ class Session:
         AgentCls = Agent.get_cls(agent_cls)
         self.agent = AgentCls(llm)
         try:
-            self.controller = AgentController(self.agent, workdir=directory, max_iterations=max_iterations, container_image=container_image, callbacks=[self.on_agent_event])
+            self.controller = AgentController(
+                self.agent,
+                workdir=directory,
+                max_iterations=max_iterations,
+                container_image=container_image,
+                callbacks=[self.on_agent_event],
+            )
         except Exception:
             print("Error creating controller.")
-            await self.send_error("Error creating controller. Please check Docker is running using `docker ps`.")
+            await self.send_error(
+                "Error creating controller. Please check Docker is running using `docker ps`."
+            )
             return
         await self.send({"action": "initialize", "message": "Control loop started."})
 
@@ -158,7 +181,10 @@ class Session:
             await self.send_error("No agent started. Please wait a second...")
             return
         try:
-            self.agent_task = await asyncio.create_task(self.controller.start_loop(task), name="agent loop")
+            print(f'\nStarting inference with the following task: "{task}"')
+            self.agent_task = await asyncio.create_task(
+                self.controller.start_loop(task), name="agent loop"
+            )
         except Exception:
             await self.send_error("Error during task loop.")
 
@@ -169,12 +195,14 @@ class Session:
             event: The agent event (Observation or Action).
         """
         if isinstance(event, NullAction):
+            print("\nserver/session.py - on_agent_event() - event = NullAction")
             return
         if isinstance(event, NullObservation):
+            print("\nserver/session.py - on_agent_event() - event = NullObservation")
             return
         event_dict = event.to_dict()
         asyncio.create_task(self.send(event_dict), name="send event in callback")
-    
+
     def disconnect(self):
         self.websocket = None
         if self.agent_task:

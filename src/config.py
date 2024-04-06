@@ -7,10 +7,11 @@ load_dotenv()
 
 DEFAULT_CONFIG = {
     "LLM_API_KEY": None,
-    "LLM_BASE_URL": None,
+    # "LLM_BASE_URL": os.environ.get("LLM_BASE_URL"),
+    "LLM_BASE_URL": "http://127.0.0.1:11434",
     "WORKSPACE_DIR": os.path.join(os.getcwd(), "workspace"),
-    "LLM_MODEL": "Mistral-7B-Instruct-v2-Q8",
-    "LLM_PROVIDER": "lm-studio",
+    "LLM_MODEL": "mistral",
+    "LLM_PROVIDER": "ollama",
     "SANDBOX_CONTAINER_IMAGE": "ghcr.io/opendevin/sandbox",
     "RUN_AS_DEVIN": "false",
     "LLM_EMBEDDING_MODEL": "local",

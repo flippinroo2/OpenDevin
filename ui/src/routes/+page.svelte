@@ -10,7 +10,7 @@
     fetchInitialData,
     fetchAgentState,
     checkInternetStatus,
-    socket
+    // socket
   } from "$lib/api";
   import { messages,tokenUsage, agentState } from "$lib/store";
 
@@ -25,26 +25,49 @@
     };
     load();
 
-    socket.emit('socket_connect', {data: 'frontend connected!'});
-    socket.on('socket_response', function(msg) {console.log(msg)});
-
-    socket.on('server-message', function(data) {
-      console.log("server-message: ", data);
-      messages.update((msgs) => [...msgs, data['messages']]);
-      console.log("$message-store: ",$messages);
-    });
-
-    socket.on('agent-state', function(state) {
-      const lastState = state[state.length - 1];
-      agentState.set(lastState);
-      console.log("server-state: ", lastState);
-      console.log("$agent-state: ", $agentState);
-      });
     
-    socket.on('tokens', function(tokens) {
-      console.log("tokens: ", tokens);
-      tokenUsage.set(tokens["token_usage"]);
+    const WS_URL = `ws://localhost:3000/ws`;
+    const socket = new WebSocket(WS_URL);
+
+    socket.onopen = () => {
+      // socket.send('message', {action: 'initialize'});
+      // socket.send({action:"initialize",args:{}});
+      socket.send(JSON.stringify({action:"initialize",args:{}}));
+      console.debug("WebSocket.onopen() - Sent initalize action to server");
+      // socket.send(eventString);
+    };
+
+
+    socket.onmessage = (event) => {
+      const socketMessage = JSON.parse(event.data);
+      console.info("sockert -> message");
+    };
+    socket.addEventListener("message", (event) => {
+      const socketMessage = JSON.parse(event.data);
+      console.info("sockert -> message");
     });
+
+
+    // socket.emit('socket_connect', {data: 'frontend connected!'});
+    // socket.on('socket_response', function(msg) {console.log(msg)});
+
+    // socket.on('server-message', function(data) {
+    //   console.log("server-message: ", data);
+    //   messages.update((msgs) => [...msgs, data['messages']]);
+    //   console.log("$message-store: ",$messages);
+    // });
+
+    // socket.on('agent-state', function(state) {
+    //   const lastState = state[state.length - 1];
+    //   agentState.set(lastState);
+    //   console.log("server-state: ", lastState);
+    //   console.log("$agent-state: ", $agentState);
+    //   });
+    
+    // socket.on('tokens', function(tokens) {
+    //   console.log("tokens: ", tokens);
+    //   tokenUsage.set(tokens["token_usage"]);
+    // });
 
 });
 </script>

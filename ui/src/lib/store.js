@@ -14,6 +14,8 @@ const getInitialSelectedModel = () => {
   return '';
 };
 
+export const isInitialized = writable(false);
+export const thoughts = writable([]);
 export const messages = writable([]);
 
 export const selectedProject = writable(getInitialSelectedProject());
