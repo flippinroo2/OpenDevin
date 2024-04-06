@@ -43,8 +43,10 @@ class RequestData(BaseModel):
     project_name: str = Field("")
 
 
-@app.post("/create-project", status_code=status.HTTP_201_CREATED)
-def create_project(request: Request, project_name: RequestData):
+@app.post(
+    "/create-project", response_model=RequestData, status_code=status.HTTP_201_CREATED
+)
+def create_project(request: Request):
     print("DEBUG")
 
 
