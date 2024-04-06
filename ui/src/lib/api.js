@@ -37,8 +37,7 @@ export const socket = {}
 
 export async function fetchInitialData() {
   const response = await fetch(`${API_BASE_URL}/default-data`);
-  // const response = await fetch(`${API_BASE_URL}/api/data`);
-  const data = await response.json();
+  const data = JSON.parse(await response.json());
   projectList.set(data.projects);
   modelList.set(data.models);
   searchEngineList.set(data.search_engines);
@@ -46,18 +45,16 @@ export async function fetchInitialData() {
 }
 
 export async function createProject(projectName) {
-  await fetch(`${API_BASE_URL}/api/create-project`, {
+  const request_body = JSON.stringify({ project_name: projectName })
+  await fetch(`${API_BASE_URL}/create-project`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ project_name: projectName }),
+    body: request_body,
   });
-  projectList.update((projects) => [...projects, projectName]);
+  // projectList.update((projects) => [...projects, projectName]);
 }
 
 export async function deleteProject(projectName) {
-  await fetch(`${API_BASE_URL}/api/delete-project`, {
+  await fetch(`${API_BASE_URL}/delete-project`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -68,7 +65,7 @@ export async function deleteProject(projectName) {
 
 export async function fetchMessages() {
   const projectName = localStorage.getItem("selectedProject");
-  const response = await fetch(`${API_BASE_URL}/api/messages`, {
+  const response = await fetch(`${API_BASE_URL}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +78,7 @@ export async function fetchMessages() {
 
 export async function fetchAgentState() {
   const projectName = localStorage.getItem("selectedProject");
-  const response = await fetch(`${API_BASE_URL}/api/get-agent-state`, {
+  const response = await fetch(`${API_BASE_URL}/get-agent-state`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -101,7 +98,7 @@ export async function executeAgent(prompt) {
     return;
   }
 
-  await fetch(`${API_BASE_URL}/api/execute-agent`, {
+  await fetch(`${API_BASE_URL}/execute-agent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -117,7 +114,7 @@ export async function executeAgent(prompt) {
 }
 
 export async function getBrowserSnapshot(snapshotPath) {
-  const response = await fetch(`${API_BASE_URL}/api/browser-snapshot`, {
+  const response = await fetch(`${API_BASE_URL}/browser-snapshot`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -137,13 +134,13 @@ export async function checkInternetStatus() {
 }
 
 export async function fetchSettings() {
-  const response = await fetch(`${API_BASE_URL}/api/settings`);
+  const response = await fetch(`${API_BASE_URL}/settings`);
   const data = await response.json();
   return data.settings;
 }
 
 export async function updateSettings(settings) {
-  await fetch(`${API_BASE_URL}/api/settings`, {
+  await fetch(`${API_BASE_URL}/settings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -153,7 +150,7 @@ export async function updateSettings(settings) {
 }
 
 export async function fetchLogs() {
-  const response = await fetch(`${API_BASE_URL}/api/logs`);
+  const response = await fetch(`${API_BASE_URL}/logs`);
   const data = await response.json();
   return data.logs;
 }

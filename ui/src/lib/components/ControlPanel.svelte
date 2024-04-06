@@ -1,11 +1,12 @@
 <script>
   import { onMount } from "svelte";
-  import { projectList, modelList, internet, tokenUsage, agentState, messages, searchEngineList} from "$lib/store";
+  import { projectList, modelList, agentList, internet, tokenUsage, agentState, messages, searchEngineList} from "$lib/store";
   import { createProject, fetchMessages, fetchInitialData, deleteProject, fetchAgentState} from "$lib/api";
   import { get } from "svelte/store";
 
   let selectedProject;
   let selectedModel;
+  let selectedAgent;
   let selectedSearchEngine;
 
   const checkListAndSetItem = (list, itemKey, defaultItem) => {
@@ -20,6 +21,7 @@
 
   selectedProject = checkListAndSetItem( projectList, "selectedProject", "Select Project");
   selectedModel = checkListAndSetItem( modelList, "selectedModel", "Select Model");
+  selectedAgent = checkListAndSetItem( agentList, "selectedAgent", "Select Agent");
   selectedSearchEngine = checkListAndSetItem( searchEngineList, "selectedSearchEngine", "Select Search Engine");
 
 
@@ -35,6 +37,11 @@
     localStorage.setItem("selectedModel", model[1]);
     document.getElementById("model-dropdown").classList.add("hidden");
   }
+  function selectAgent(agent) {
+    selectedAgent = `${agent[0]}`;
+    localStorage.setItem("selectedAgent", agent[1]);
+    document.getElementById("agent-dropdown").classList.add("hidden");
+  }
   function selectSearchEngine(searchEngine) {
     selectedSearchEngine = searchEngine;
     localStorage.setItem("selectedSearchEngine", searchEngine);
@@ -48,7 +55,7 @@
       selectProject(projectName);
     }
   }
-  async function deleteproject(project) {
+  async function deleteSelectedProject(project) {
     if (confirm(`Are you sure you want to delete ${project}?`)) {
       await deleteProject(project);
       await fetchInitialData();
@@ -137,7 +144,7 @@
               </button>
               <button
                 class="fa-regular fa-trash-can hover:text-red-600"
-                on:click={() => deleteproject(project)}
+                on:click={() => deleteSelectedProject(project)}
                 aria-label="Delete project"
               ></button>
             </div>
@@ -249,6 +256,59 @@
                       {models[0]}
                       <span class="tooltip text-[10px] px-2 text-gray-500"
                         >{models[1]}</span
+                      >
+                    </button>
+                  {/each}
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+    <div class="relative inline-block text-left">
+      <div>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center w-fit gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300"
+          id="agent-button"
+          aria-expanded="true"
+          aria-haspopup="true"
+        >
+          <span id="selected-agent">{selectedAgent}</span>
+          <i class="fas fa-angle-down"></i>
+        </button>
+      </div>
+
+      <div
+        id="agent-dropdown"
+        class="absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-md bg-gray-100 shadow-lg max-h-96 overflow-y-auto hidden"
+        role="menu"
+        aria-orientation="vertical"
+        aria-labelledby="agent-button"
+        tabindex="-1"
+      >
+        {#if $agentList !== null}
+          <div class="flex flex-col divide-y-2">
+            {#each Object.entries($agentList) as [agentName, agentItems]}
+              <div class="flex flex-col py-4 gap-2" role="none">
+                <span class="text-sm px-4 w-full font-semibold"
+                  >{agentName.toLowerCase()}</span
+                >
+                <div class="flex flex-col gap-[1px] px-6 w-full">
+                  {#each agentItems as agents}
+                    <button
+                      class="relative nav-button flex text-start text-sm text-clip hover:bg-gray-300 px-2 py-1 rounded-md
+                      transition-colors {selectedAgent ==
+                        `${agents[0]} (${agents[1]})` ||
+                      selectedAgent == agents[1]
+                        ? 'bg-gray-300'
+                        : ''}"
+                      on:click|preventDefault={() => selectAgent(agents)}
+                    >
+                      {agents[0]}
+                      <span class="tooltip text-[10px] px-2 text-gray-500"
+                        >{agents[1]}</span
                       >
                     </button>
                   {/each}
