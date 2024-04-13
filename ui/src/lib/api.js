@@ -50,7 +50,7 @@ export async function createProject(projectName) {
     method: "POST",
     body: request_body,
   });
-  // projectList.update((projects) => [...projects, projectName]);
+  projectList.update((projects) => [...projects, projectName]);
 }
 
 export async function deleteProject(projectName) {

@@ -142,7 +142,9 @@ class Config:
         return self.config["API_KEYS"]["NETLIFY"]
 
     def get_sqlite_db(self):
-        return self.config["STORAGE"]["SQLITE_DB"]
+        return self.config.get("STORAGE", {"SQLITE_DB": "data/db/devika.db"}).get(
+            "SQLITE_DB", "data/db/devika.db"
+        )
 
     def get_screenshots_dir(self):
         return self.config["STORAGE"]["SCREENSHOTS_DIR"]
@@ -151,7 +153,9 @@ class Config:
         return self.config["STORAGE"]["PDFS_DIR"]
 
     def get_projects_dir(self):
-        return self.config["STORAGE"]["PROJECTS_DIR"]
+        return self.config.get("STORAGE", {"PROJECTS_DIR": "data/projects"}).get(
+            "PROJECTS_DIR", "data/projects"
+        )
 
     def get_logs_dir(self):
         return self.config["STORAGE"]["LOGS_DIR"]

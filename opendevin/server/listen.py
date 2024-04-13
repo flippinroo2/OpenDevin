@@ -2,14 +2,22 @@ import json
 
 import agenthub  # noqa F401 (we import this to get the agents registered)
 import litellm
+import tiktoken
 from fastapi import FastAPI, Request, WebSocket, status
 from fastapi.middleware.cors import CORSMiddleware
+from flask import jsonify
 from opendevin.agent import Agent
 from opendevin.server.session import Session
 from pydantic import BaseModel, Field
 from src.config import Config, get_or_error
+from src.logger import Logger, route_logger
+from src.project import ProjectManager
 
 config = Config()
+logger = Logger()
+manager = ProjectManager()
+
+TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
 
 app = FastAPI()
 
@@ -46,32 +54,45 @@ class RequestData(BaseModel):
 @app.post(
     "/create-project", response_model=RequestData, status_code=status.HTTP_201_CREATED
 )
-def create_project(request: Request):
-    print("DEBUG")
+# @route_logger(logger)
+async def create_project(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
+    manager.create_project(project_name)
+    return jsonify({"message": "Project created"})
+
+
+@app.post(path="/calculate-tokens")
+@route_logger(logger)
+async def calculate_tokens(request: Request):
+    json = await request.json()
+    prompt = json.get("prompt")
+    tokens = len(TIKTOKEN_ENC.encode(prompt))
+    return jsonify({"token_usage": tokens})
 
 
 @app.post("/delete-project")
-def delete_project(request: Request):
-    data = request.json
-    project_name = data.get("project_name")
+async def delete_project(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/download-project")
-def download_project(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def download_project(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/download-project-pdf")
-def download_project_pdf(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def download_project_pdf(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -101,36 +122,45 @@ def get_default_data() -> str:
 
 
 @app.get("/execute-agent")
-def execute_agent(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def execute_agent(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/get-agent-state")
-def get_agent_state(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def get_agent_state(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
+    # manager.create_project(project_name)
+    # return jsonify({"message": "Project created"})
+    print("DEBUG")
+
+
+@app.post("/get-agent-state")
+async def post_agent_state(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/browser-snapshot")
-def get_browser_snapshot(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def get_browser_snapshot(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/messages")
-def get_messages(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def get_messages(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -153,18 +183,18 @@ async def get_litellm_agents():
 
 
 @app.get("/logs")
-def get_logs(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def get_logs(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
 
 
 @app.get("/settings")
-def get_settings(request):
-    data = request.json
-    project_name = data.get("project_name")
+async def get_settings(request: Request):
+    json = await request.json()
+    project_name = json.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")

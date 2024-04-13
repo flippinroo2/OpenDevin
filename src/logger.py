@@ -10,7 +10,12 @@ class Logger:
     def __init__(self, filename="devika_agent.log"):
         config = Config()
         logs_dir = config.get_logs_dir()
-        self.logger = LogInit(pathName=logs_dir + "/" + filename, console=True, colors=True, encoding="utf-8")
+        self.logger = LogInit(
+            pathName=logs_dir + "/" + filename,
+            console=True,
+            colors=True,
+            encoding="utf-8",
+        )
 
     def read_log_file(self) -> str:
         with open(self.logger.pathName, "r") as file:
@@ -48,7 +53,6 @@ def route_logger(logger: Logger):
     log_enabled = Config().get_logging_rest_api()
 
     def decorator(func):
-
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Log entry point
@@ -64,13 +68,19 @@ def route_logger(logger: Logger):
             try:
                 if log_enabled:
                     if isinstance(response, Response) and response.direct_passthrough:
-                        logger.debug(f"{request.path} {request.method} - Response: File response")
+                        logger.debug(
+                            f"{request.path} {request.method} - Response: File response"
+                        )
                     else:
                         response_summary = response.get_data(as_text=True)
-                        logger.debug(f"{request.path} {request.method} - Response: {response_summary}")
+                        logger.debug(
+                            f"{request.path} {request.method} - Response: {response_summary}"
+                        )
             except Exception as e:
                 logger.exception(f"{request.path} {request.method} - {e})")
 
             return response
+
         return wrapper
+
     return decorator
