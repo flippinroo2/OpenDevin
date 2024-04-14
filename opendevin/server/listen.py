@@ -55,10 +55,9 @@ class RequestData(BaseModel):
     project_name: str = Field("")
 
 
-@app.post(
-    "/create-project", response_model=RequestData, status_code=status.HTTP_201_CREATED
-)
+@app.post("/create-project", status_code=status.HTTP_201_CREATED)
 async def create_project(request: Request) -> str:
+    # app = request.app()
     data: dict[str, str | None] = await request.json()
     project_name = data.get("project_name")
     manager.create_project(project_name)
