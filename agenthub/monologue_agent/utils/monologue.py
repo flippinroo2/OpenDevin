@@ -11,7 +11,7 @@ class Monologue:
     def add_event(self, t: dict):
         if not isinstance(t, dict):
             raise ValueError("Event must be a dictionary")
-        print(f"Thought: {t.get("message", "N/A")}")
+        print(f"Thought: {t.get('message', 'N/A')}")
         self.thoughts.append(t)
 
     def get_thoughts(self):

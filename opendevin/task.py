@@ -43,7 +43,7 @@ class Task:
         self.goal = goal
         self.subtasks = []
         for subtask in subtasks or []:
-            print(f"Subtask: {subtask.get("goal")}")
+            print(f"Subtask: {subtask.get('goal')}")
             if isinstance(subtask, Task):
                 self.subtasks.append(subtask)
             else:

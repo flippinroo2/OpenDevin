@@ -1,6 +1,6 @@
 from typing import List
 
-from .task import Task
+from opendevin.task import Task
 
 OPEN_STATE = "open"
 COMPLETED_STATE = "completed"
