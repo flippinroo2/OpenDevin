@@ -1,21 +1,25 @@
 import json
+from typing import Any
 
 import agenthub  # noqa F401 (we import this to get the agents registered)
 import litellm
 import tiktoken
 from fastapi import FastAPI, Request, WebSocket, status
 from fastapi.middleware.cors import CORSMiddleware
-from flask import jsonify
+
+# from flask import Response, jsonify
 from opendevin.agent import Agent
 from opendevin.server.session import Session
 from pydantic import BaseModel, Field
 from src.config import Config, get_or_error
-from src.logger import Logger, route_logger
+from src.logger import Logger
 from src.project import ProjectManager
+from src.state import AgentState
 
 config = Config()
 logger = Logger()
 manager = ProjectManager()
+agent_state_object = AgentState()
 
 TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
 
@@ -54,27 +58,38 @@ class RequestData(BaseModel):
 @app.post(
     "/create-project", response_model=RequestData, status_code=status.HTTP_201_CREATED
 )
-# @route_logger(logger)
-async def create_project(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+async def create_project(request: Request) -> str:
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     manager.create_project(project_name)
-    return jsonify({"message": "Project created"})
+    # return_value = jsonify({"message": "Project created"})
+    return_value: str = json.dumps(
+        {
+            "message": "Project created",
+        }
+    )
+    return return_value
 
 
 @app.post(path="/calculate-tokens")
-@route_logger(logger)
+# @route_logger(logger)
 async def calculate_tokens(request: Request):
-    json = await request.json()
-    prompt = json.get("prompt")
+    data: dict[str, str | None] = await request.json()
+    prompt = data.get("prompt")
     tokens = len(TIKTOKEN_ENC.encode(prompt))
-    return jsonify({"token_usage": tokens})
+    # return_value = jsonify({"token_usage": tokens})
+    return_value: str = json.dumps(
+        {
+            "message": "Project created",
+        }
+    )
+    return return_value
 
 
 @app.post("/delete-project")
 async def delete_project(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -82,8 +97,8 @@ async def delete_project(request: Request):
 
 @app.get("/download-project")
 async def download_project(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -91,8 +106,8 @@ async def download_project(request: Request):
 
 @app.get("/download-project-pdf")
 async def download_project_pdf(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -123,8 +138,8 @@ def get_default_data() -> str:
 
 @app.get("/execute-agent")
 async def execute_agent(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -132,26 +147,28 @@ async def execute_agent(request: Request):
 
 @app.get("/get-agent-state")
 async def get_agent_state(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
-    # manager.create_project(project_name)
-    # return jsonify({"message": "Project created"})
-    print("DEBUG")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
+    print("GET - /get-agent-state!!!")
 
 
 @app.post("/get-agent-state")
 async def post_agent_state(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
-    # manager.create_project(project_name)
-    # return jsonify({"message": "Project created"})
-    print("DEBUG")
+    data: dict[str, str | None] = await request.json()
+    project_name: str | None = data.get("project_name")
+    agent_state: Any | None = agent_state_object.get_latest_state(project_name)
+    # return_value = jsonify({"state": agent_state})
+    return json.dumps(
+        {
+            "message": "Project created",
+        }
+    )
 
 
 @app.get("/browser-snapshot")
 async def get_browser_snapshot(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -159,8 +176,8 @@ async def get_browser_snapshot(request: Request):
 
 @app.get("/messages")
 async def get_messages(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -184,8 +201,8 @@ async def get_litellm_agents():
 
 @app.get("/logs")
 async def get_logs(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
@@ -193,8 +210,8 @@ async def get_logs(request: Request):
 
 @app.get("/settings")
 async def get_settings(request: Request):
-    json = await request.json()
-    project_name = json.get("project_name")
+    data: dict[str, str | None] = await request.json()
+    project_name = data.get("project_name")
     # manager.create_project(project_name)
     # return jsonify({"message": "Project created"})
     print("DEBUG")
