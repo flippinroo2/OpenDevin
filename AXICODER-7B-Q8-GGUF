@@ -1,0 +1,9 @@
+FROM ../../models/.lm_studio/bartowski/aixcoder-7b-GGUF/aixcoder-7b-Q8_0.gguf
+
+# Set the temperature to 1 [higher is more creative, lower is more coherent]
+PARAMETER temperature 1
+
+# Set the system message
+SYSTEM """
+You are an expert web developer. You have experience with Hypertext Markup Language (HTML), Cascading Style Sheets (CSS), JavaScript, and Python.
+"""
