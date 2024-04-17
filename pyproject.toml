@@ -102,6 +102,5 @@ termcolor = "*"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-# [tool.poetry.scripts]
-# interpreter = "interpreter.interpreter:interpreter.start_terminal_interface"
-# i = "interpreter.interpreter:interpreter.start_terminal_interface"
+[tool.poetry.scripts]
+start = "python run_flask_app.py"
